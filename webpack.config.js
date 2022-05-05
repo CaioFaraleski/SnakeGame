@@ -5,7 +5,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     mode: 'development',
-    entry: path.resolve(__dirname, 'src/index.ts'),
+    entry: path.resolve(__dirname, 'src/js/index.js'),
     module: {
         rules: [
             {
@@ -16,6 +16,10 @@ module.exports = {
             {
                 test: /\.(css|sass|scss)$/,
                 use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
             },
         ]
     },
@@ -31,5 +35,6 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'public'),
         filename: 'bundle.js',
+        assetModuleFilename: 'assets/[name][ext]'
     }
 }
