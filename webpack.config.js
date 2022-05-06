@@ -33,7 +33,7 @@ module.exports = {
     ],
     devtool: 'source-map',
     output: {
-        path: path.resolve(__dirname, 'public'),
+        path: path.resolve(__dirname, 'docs'),
         filename: 'bundle.js',
         assetModuleFilename: 'assets/[name][ext]'
     }
