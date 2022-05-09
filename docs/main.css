@@ -31,8 +31,34 @@ body #body #container .header {
   justify-content: space-around;
 }
 body #body #container canvas {
-  width: 90%;
-  height: 81.326%;
+  width: 85.38%;
+  height: 77.151%;
+}
+body #body #container #game-over {
+  width: 30vmin;
+  height: 30vmin;
+  position: absolute;
+  align-self: center;
+  display: none;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+body #body #container #game-over p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  width: 100%;
+  height: 50%;
+  margin: 0;
+  padding: 0;
+}
+body #body #container #game-over button {
+  height: 15%;
+  width: 30%;
+}
+body #body #container #game-over button:nth-child(2) {
+  width: 65%;
 }
 body #background {
   width: 100vw;

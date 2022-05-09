@@ -8,49 +8,89 @@
 /***/ (() => {
 
 window.onload = function () {
+  var buttonDifficulty = document.querySelector('#game-over').children[2];
+
+  if (!localStorage.getItem('difficulty')) {
+    localStorage.setItem('difficulty', 'Medium');
+  } else {
+    buttonDifficulty.innerText = localStorage.getItem('difficulty');
+  }
+
   var board = document.querySelector("#table");
   var context = board.getContext("2d");
+  var lastKey;
   document.addEventListener("keydown", function (event) {
     switch (event.keyCode) {
       case 37:
-        veloX = -velo;
-        veloY = 0;
+        lastKey = 37;
         break;
 
       case 38:
-        veloX = 0;
-        veloY = -velo;
+        lastKey = 38;
         break;
 
       case 39:
-        veloX = velo;
-        veloY = 0;
+        lastKey = 39;
         break;
 
       case 40:
-        veloX = 0;
-        veloY = velo;
+        lastKey = 40;
         break;
 
       default:
         break;
     }
   });
-  setInterval(game, 90);
+  buttonDifficulty.addEventListener('click', function (event) {
+    if (event.target.innerHTML === 'Medium') {
+      event.target.innerText = 'Hard';
+      localStorage.setItem('difficulty', 'Hard');
+    } else if (event.target.innerHTML === 'Hard') {
+      event.target.innerText = 'Easy';
+      localStorage.setItem('difficulty', 'Easy');
+    } else if (event.target.innerHTML === 'Easy') {
+      event.target.innerText = 'Medium';
+      localStorage.setItem('difficulty', 'Medium');
+    }
+  });
+  var startGame = setInterval(game, 110);
   var velo = 1;
   var veloX = 0;
-  var veloY = 0;
+  var veloY = -1;
+  var num;
+
+  if (localStorage.getItem('difficulty') === 'Medium') {
+    num = 20;
+  } else if (localStorage.getItem('difficulty') === 'Easy') {
+    num = 10;
+  } else {
+    num = 30;
+  }
+
+  var pieceAmount = num;
   var initialPointX = 10;
-  var initialPointY = 15;
-  var pieceSize = board.getBoundingClientRect().width / 17;
-  var pieceAmount = 17;
-  var applePointX = 15;
-  var applePointY = 15;
+  var initialPointY = 9;
+  var pieceSize = 600 / num;
+  var applePointX = Math.floor(Math.random() * pieceAmount);
+  var applePointY = Math.floor(Math.random() * pieceAmount);
   var trail = [];
-  tail = 2;
+  var tail = 1;
 
   function game() {
-    console.log("to aqui");
+    if (lastKey === 37 && veloX !== velo && veloY !== 0) {
+      veloX = -velo;
+      veloY = 0;
+    } else if (lastKey === 38 && veloX !== 0 && veloY !== velo) {
+      veloX = 0;
+      veloY = -velo;
+    } else if (lastKey === 39 && veloX !== -velo && veloY !== 0) {
+      veloX = velo;
+      veloY = 0;
+    } else if (lastKey === 40 && veloX !== 0 && veloY !== velo) {
+      veloX = 0;
+      veloY = velo;
+    }
+
     initialPointX += veloX;
     initialPointY += veloY;
 
@@ -77,11 +117,13 @@ window.onload = function () {
     context.fillStyle = "blue";
 
     for (var i = 0; i < trail.length; i++) {
-      context.fillRect(trail[i].x * pieceSize, trail[i].y * pieceSize, pieceSize, pieceSize);
+      arrayTrailColor = context.fillRect(trail[i].x * pieceSize, trail[i].y * pieceSize, pieceSize, pieceSize);
 
       if (trail[i].x == initialPointX && trail[i].y == initialPointY) {
         veloX = 0;
         veloY = 0;
+        lastKey = 1;
+        gameOver();
       }
     }
 
@@ -98,6 +140,11 @@ window.onload = function () {
       tail++;
       applePointX = Math.floor(Math.random() * pieceAmount);
       applePointY = Math.floor(Math.random() * pieceAmount);
+    }
+
+    function gameOver() {
+      var gameOverScreen = document.querySelector('#game-over');
+      gameOverScreen.style.display = 'flex';
     }
   }
 };

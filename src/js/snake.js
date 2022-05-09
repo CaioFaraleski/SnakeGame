@@ -1,49 +1,97 @@
 window.onload = function() {
 
+    let buttonDifficulty = document.querySelector('#game-over').children[2];
+
+    if (!localStorage.getItem('difficulty')) {
+        localStorage.setItem('difficulty', 'Medium')
+    }
+    else {
+        buttonDifficulty.innerText = localStorage.getItem('difficulty')
+    }
     let board = document.querySelector("#table");
     let context = board.getContext("2d");
+    let lastKey;
 
     document.addEventListener("keydown", (event) => {
         switch (event.keyCode) {
             case 37:
-                veloX = -velo;
-                veloY = 0;
+                lastKey = 37;
                 break;
             case 38:
-                veloX = 0;
-                veloY = -velo;
+                lastKey = 38;
                 break;
             case 39:
-                veloX = velo;
-                veloY = 0;
+                lastKey = 39;
+                
                 break;
             case 40:
-                veloX = 0;
-                veloY = velo;
+                lastKey = 40;
+                
                 break;
             default:
                 break;
         }
+    });
+
+    buttonDifficulty.addEventListener('click', (event) => {
+        if(event.target.innerHTML === 'Medium') {
+            event.target.innerText = 'Hard';
+            localStorage.setItem('difficulty', 'Hard');
+        }
+        else if(event.target.innerHTML === 'Hard') {
+            event.target.innerText = 'Easy'
+            localStorage.setItem('difficulty', 'Easy');
+        }
+        else if(event.target.innerHTML === 'Easy') {
+            event.target.innerText = 'Medium';
+            localStorage.setItem('difficulty', 'Medium');
+        }
     })
 
-    setInterval(game, 90);
+    let startGame = setInterval(game, 110);
 
     const velo = 1;
-
     let veloX = 0;
-    let veloY = 0;
+    let veloY = -1;
+    let num;
+    if(localStorage.getItem('difficulty') === 'Medium') {
+        num = 20
+    }
+    else if (localStorage.getItem('difficulty') === 'Easy') {
+        num = 10
+    }
+    else {
+        num = 30
+    }
+    let pieceAmount = num;
     let initialPointX = 10;
-    let initialPointY = 15;
-    let pieceSize = board.getBoundingClientRect().width / 17;
-    let pieceAmount = 17;
-    let applePointX = 15;
-    let applePointY = 15;
+    let initialPointY = 9;
+    let pieceSize = 600 / num; 
+    let applePointX = Math.floor(Math.random() * pieceAmount);
+    let applePointY = Math.floor(Math.random() * pieceAmount);
     let trail = [];
-    tail = 2;
+    let tail = 1;
 
-
+    
+    
     function game() {
-        console.log("to aqui")
+        if(lastKey === 37 && veloX !== velo && veloY !== 0) {
+            veloX = -velo;
+            veloY = 0;
+        }
+        else if(lastKey === 38 && veloX !== 0 && veloY !== velo) {
+            veloX = 0;
+            veloY = -velo;
+        }
+        else if(lastKey === 39 && veloX !== -velo && veloY !== 0) {
+            veloX = velo;
+            veloY = 0;
+        }
+        else if(lastKey === 40 && veloX !== 0 && veloY !== velo) {
+            veloX = 0;
+            veloY = velo;
+        }
+        
         initialPointX += veloX;
         initialPointY += veloY;
 
@@ -68,10 +116,12 @@ window.onload = function() {
 
         context.fillStyle = "blue";
         for (let i = 0; i < trail.length; i++) {
-            context.fillRect(trail[i].x * pieceSize, trail[i].y * pieceSize, pieceSize, pieceSize);
+            arrayTrailColor = context.fillRect(trail[i].x * pieceSize, trail[i].y * pieceSize, pieceSize, pieceSize);
             if(trail[i].x == initialPointX && trail[i].y == initialPointY) {
                 veloX = 0;
                 veloY = 0;
+                lastKey = 1;
+                gameOver();
             }
         }
 
@@ -84,6 +134,11 @@ window.onload = function() {
             tail++;
             applePointX = Math.floor(Math.random() * pieceAmount);
             applePointY = Math.floor(Math.random() * pieceAmount);
+        }
+
+        function gameOver() {
+            let gameOverScreen = document.querySelector('#game-over');
+            gameOverScreen.style.display = 'flex';
         }
     }
 
