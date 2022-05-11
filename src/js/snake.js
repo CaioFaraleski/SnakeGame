@@ -1,6 +1,7 @@
 window.onload = function() {
 
     let buttonDifficulty = document.querySelector('#game-over').children[2];
+    let buttonStart = document.querySelector('#game-over').children[1];
 
     if (!localStorage.getItem('difficulty')) {
         localStorage.setItem('difficulty', 'Medium')
@@ -46,9 +47,37 @@ window.onload = function() {
             event.target.innerText = 'Medium';
             localStorage.setItem('difficulty', 'Medium');
         }
+    });
+
+    function start() {
+        let gameOverScreen = document.querySelector('#game-over');
+        gameOverScreen.style.display = 'none';
+        if(localStorage.getItem('difficulty') === 'Medium') {
+            pieceSize = 600 / 20;
+            pieceAmount = 20;
+        }
+        else if (localStorage.getItem('difficulty') === 'Easy') {
+            pieceSize = 600 / 10;
+            pieceAmount = 10;
+        }
+        else {
+            pieceSize = 600 / 25;
+            pieceAmount = 25;
+        }
+        lastKey = 0;
+        initialPointX = 9;
+        initialPointY = 9;
+        applePointX = Math.floor(Math.random() * pieceAmount);
+        applePointY = Math.floor(Math.random() * pieceAmount);
+        veloX = 0;
+        veloY = -1;
+    }
+
+    buttonStart.addEventListener('click', (event) => {
+        start();
     })
 
-    let startGame = setInterval(game, 110);
+    let startGame = setInterval(game, 90);
 
     const velo = 1;
     let veloX = 0;
@@ -61,10 +90,10 @@ window.onload = function() {
         num = 10
     }
     else {
-        num = 30
+        num = 25
     }
     let pieceAmount = num;
-    let initialPointX = 10;
+    let initialPointX = 9;
     let initialPointY = 9;
     let pieceSize = 600 / num; 
     let applePointX = Math.floor(Math.random() * pieceAmount);
@@ -96,31 +125,39 @@ window.onload = function() {
         initialPointY += veloY;
 
         if(initialPointX < 0) {
-            initialPointX = pieceAmount - 1;
+            gameOver();
         }
         if(initialPointX > pieceAmount - 1) {
-            initialPointX = 0;
+            gameOver();
         }
         if(initialPointY < 0) {
-            initialPointY = pieceAmount - 1;
+            gameOver();
         }
         if(initialPointY > pieceAmount - 1) {
-            initialPointY = 0;
+            gameOver();
         }
 
-        context.fillStyle = "#fcd31f";
-        context.fillRect(0, 0, board.width, board.height);
+        for (var i = 0; i < pieceAmount; i++){
+            for (var j = 0; j < pieceAmount; j++){
+              if((i + j) % 2 === 0) {
+                context.fillStyle = "#fcd31f";
+                context.fillRect(j * pieceSize, i * pieceSize, pieceSize, pieceSize);
+              }
+              else {
+                context.fillStyle = "#dfb913";
+                context.fillRect(j * pieceSize, i * pieceSize, pieceSize, pieceSize);
+              }
+            }
+          }
+        
 
         context.fillStyle = "red";
-        context.fillRect(applePointX * pieceSize, applePointY * pieceSize, pieceSize, pieceSize);
+        context.fillRect(applePointX * pieceSize + Math.floor((pieceSize / 10) * 100), applePointY * pieceSize + Math.floor((pieceSize / 10) * 100), pieceSize - Math.floor((pieceSize / 20) * 100), pieceSize - Math.floor((pieceSize / 20) * 100));
 
         context.fillStyle = "blue";
         for (let i = 0; i < trail.length; i++) {
-            arrayTrailColor = context.fillRect(trail[i].x * pieceSize, trail[i].y * pieceSize, pieceSize, pieceSize);
+            arrayTrailColor = context.fillRect(trail[i].x * pieceSize, trail[i].y * pieceSize, pieceSize - 1, pieceSize - 1);
             if(trail[i].x == initialPointX && trail[i].y == initialPointY) {
-                veloX = 0;
-                veloY = 0;
-                lastKey = 1;
                 gameOver();
             }
         }
@@ -131,15 +168,35 @@ window.onload = function() {
         }
 
         if(applePointX == initialPointX && applePointY == initialPointY) {
+            let diferent = false;
             tail++;
-            applePointX = Math.floor(Math.random() * pieceAmount);
-            applePointY = Math.floor(Math.random() * pieceAmount);
+            while (applePointX == initialPointX && applePointY == initialPointY && diferent !== true) {
+                applePointX = Math.floor(Math.random() * pieceAmount);
+                applePointY = Math.floor(Math.random() * pieceAmount);
+                if(trail.length > 0) {
+                    for (let i = 0; i < trail.length; i++) {
+                        if(trail[i].x !== applePointX && trail[i].y !== applePointY) {
+                            diferent = true;
+                        }
+                        
+                    }
+                }
+            }
         }
 
-        function gameOver() {
-            let gameOverScreen = document.querySelector('#game-over');
-            gameOverScreen.style.display = 'flex';
-        }
     }
+
+    function gameOver() {
+        let gameOverScreen = document.querySelector('#game-over');
+        gameOverScreen.style.display = 'flex';
+        initialPointX -= veloX;
+        initialPointY -= veloY;
+        veloX = 0;
+        veloY = 0;
+        tail = 1
+        lastKey = 1;
+    }
+
+    
 
 }

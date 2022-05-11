@@ -9,6 +9,7 @@
 
 window.onload = function () {
   var buttonDifficulty = document.querySelector('#game-over').children[2];
+  var buttonStart = document.querySelector('#game-over').children[1];
 
   if (!localStorage.getItem('difficulty')) {
     localStorage.setItem('difficulty', 'Medium');
@@ -53,7 +54,35 @@ window.onload = function () {
       localStorage.setItem('difficulty', 'Medium');
     }
   });
-  var startGame = setInterval(game, 110);
+
+  function start() {
+    var gameOverScreen = document.querySelector('#game-over');
+    gameOverScreen.style.display = 'none';
+
+    if (localStorage.getItem('difficulty') === 'Medium') {
+      pieceSize = 600 / 20;
+      pieceAmount = 20;
+    } else if (localStorage.getItem('difficulty') === 'Easy') {
+      pieceSize = 600 / 10;
+      pieceAmount = 10;
+    } else {
+      pieceSize = 600 / 25;
+      pieceAmount = 25;
+    }
+
+    lastKey = 0;
+    initialPointX = 9;
+    initialPointY = 9;
+    applePointX = Math.floor(Math.random() * pieceAmount);
+    applePointY = Math.floor(Math.random() * pieceAmount);
+    veloX = 0;
+    veloY = -1;
+  }
+
+  buttonStart.addEventListener('click', function (event) {
+    start();
+  });
+  var startGame = setInterval(game, 90);
   var velo = 1;
   var veloX = 0;
   var veloY = -1;
@@ -64,11 +93,11 @@ window.onload = function () {
   } else if (localStorage.getItem('difficulty') === 'Easy') {
     num = 10;
   } else {
-    num = 30;
+    num = 25;
   }
 
   var pieceAmount = num;
-  var initialPointX = 10;
+  var initialPointX = 9;
   var initialPointY = 9;
   var pieceSize = 600 / num;
   var applePointX = Math.floor(Math.random() * pieceAmount);
@@ -95,34 +124,41 @@ window.onload = function () {
     initialPointY += veloY;
 
     if (initialPointX < 0) {
-      initialPointX = pieceAmount - 1;
+      gameOver();
     }
 
     if (initialPointX > pieceAmount - 1) {
-      initialPointX = 0;
+      gameOver();
     }
 
     if (initialPointY < 0) {
-      initialPointY = pieceAmount - 1;
+      gameOver();
     }
 
     if (initialPointY > pieceAmount - 1) {
-      initialPointY = 0;
+      gameOver();
     }
 
-    context.fillStyle = "#fcd31f";
-    context.fillRect(0, 0, board.width, board.height);
+    for (var i = 0; i < pieceAmount; i++) {
+      for (var j = 0; j < pieceAmount; j++) {
+        if ((i + j) % 2 === 0) {
+          context.fillStyle = "#fcd31f";
+          context.fillRect(j * pieceSize, i * pieceSize, pieceSize, pieceSize);
+        } else {
+          context.fillStyle = "#dfb913";
+          context.fillRect(j * pieceSize, i * pieceSize, pieceSize, pieceSize);
+        }
+      }
+    }
+
     context.fillStyle = "red";
-    context.fillRect(applePointX * pieceSize, applePointY * pieceSize, pieceSize, pieceSize);
+    context.fillRect(applePointX * pieceSize + Math.floor(pieceSize / 10 * 100), applePointY * pieceSize + Math.floor(pieceSize / 10 * 100), pieceSize - Math.floor(pieceSize / 20 * 100), pieceSize - Math.floor(pieceSize / 20 * 100));
     context.fillStyle = "blue";
 
-    for (var i = 0; i < trail.length; i++) {
-      arrayTrailColor = context.fillRect(trail[i].x * pieceSize, trail[i].y * pieceSize, pieceSize, pieceSize);
+    for (var _i = 0; _i < trail.length; _i++) {
+      arrayTrailColor = context.fillRect(trail[_i].x * pieceSize, trail[_i].y * pieceSize, pieceSize - 1, pieceSize - 1);
 
-      if (trail[i].x == initialPointX && trail[i].y == initialPointY) {
-        veloX = 0;
-        veloY = 0;
-        lastKey = 1;
+      if (trail[_i].x == initialPointX && trail[_i].y == initialPointY) {
         gameOver();
       }
     }
@@ -137,15 +173,33 @@ window.onload = function () {
     }
 
     if (applePointX == initialPointX && applePointY == initialPointY) {
+      var diferent = false;
       tail++;
-      applePointX = Math.floor(Math.random() * pieceAmount);
-      applePointY = Math.floor(Math.random() * pieceAmount);
-    }
 
-    function gameOver() {
-      var gameOverScreen = document.querySelector('#game-over');
-      gameOverScreen.style.display = 'flex';
+      while (applePointX == initialPointX && applePointY == initialPointY && diferent !== true) {
+        applePointX = Math.floor(Math.random() * pieceAmount);
+        applePointY = Math.floor(Math.random() * pieceAmount);
+
+        if (trail.length > 0) {
+          for (var _i2 = 0; _i2 < trail.length; _i2++) {
+            if (trail[_i2].x !== applePointX && trail[_i2].y !== applePointY) {
+              diferent = true;
+            }
+          }
+        }
+      }
     }
+  }
+
+  function gameOver() {
+    var gameOverScreen = document.querySelector('#game-over');
+    gameOverScreen.style.display = 'flex';
+    initialPointX -= veloX;
+    initialPointY -= veloY;
+    veloX = 0;
+    veloY = 0;
+    tail = 1;
+    lastKey = 1;
   }
 };
 
