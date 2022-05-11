@@ -13,13 +13,19 @@ window.onload = function () {
 
   if (!localStorage.getItem('difficulty')) {
     localStorage.setItem('difficulty', 'Medium');
+    buttonDifficulty.innerText = localStorage.getItem('difficulty');
   } else {
     buttonDifficulty.innerText = localStorage.getItem('difficulty');
+  }
+
+  if (localStorage.getItem('bestScore')) {
+    displayBestScore.children[0].innerText = localStorage.getItem('bestScore');
   }
 
   var board = document.querySelector("#table");
   var context = board.getContext("2d");
   var lastKey;
+  displayDifficulty.children[0].innerText = localStorage.getItem('difficulty');
   document.addEventListener("keydown", function (event) {
     switch (event.keyCode) {
       case 37:
@@ -53,6 +59,8 @@ window.onload = function () {
       event.target.innerText = 'Medium';
       localStorage.setItem('difficulty', 'Medium');
     }
+
+    displayDifficulty.children[0].innerText = localStorage.getItem('difficulty');
   });
 
   function start() {
@@ -71,12 +79,13 @@ window.onload = function () {
     }
 
     lastKey = 0;
-    initialPointX = 9;
-    initialPointY = 9;
+    initialPointX = pieceAmount - Math.floor(pieceAmount / 2);
+    initialPointY = pieceAmount - 1;
     applePointX = Math.floor(Math.random() * pieceAmount);
     applePointY = Math.floor(Math.random() * pieceAmount);
     veloX = 0;
     veloY = -1;
+    displayScore.children[0].innerText = score;
   }
 
   buttonStart.addEventListener('click', function (event) {
@@ -97,13 +106,14 @@ window.onload = function () {
   }
 
   var pieceAmount = num;
-  var initialPointX = 9;
-  var initialPointY = 9;
+  var initialPointX = pieceAmount - Math.floor(pieceAmount / 2);
+  var initialPointY = pieceAmount - 1;
   var pieceSize = 600 / num;
   var applePointX = Math.floor(Math.random() * pieceAmount);
   var applePointY = Math.floor(Math.random() * pieceAmount);
   var trail = [];
   var tail = 1;
+  var score = 0;
 
   function game() {
     if (lastKey === 37 && veloX !== velo && veloY !== 0) {
@@ -125,17 +135,11 @@ window.onload = function () {
 
     if (initialPointX < 0) {
       gameOver();
-    }
-
-    if (initialPointX > pieceAmount - 1) {
+    } else if (initialPointX > pieceAmount - 1) {
       gameOver();
-    }
-
-    if (initialPointY < 0) {
+    } else if (initialPointY < 0) {
       gameOver();
-    }
-
-    if (initialPointY > pieceAmount - 1) {
+    } else if (initialPointY > pieceAmount - 1) {
       gameOver();
     }
 
@@ -152,7 +156,7 @@ window.onload = function () {
     }
 
     context.fillStyle = "red";
-    context.fillRect(applePointX * pieceSize + Math.floor(pieceSize / 10 * 100), applePointY * pieceSize + Math.floor(pieceSize / 10 * 100), pieceSize - Math.floor(pieceSize / 20 * 100), pieceSize - Math.floor(pieceSize / 20 * 100));
+    context.fillRect(applePointX * pieceSize + 20 * pieceSize / 100, applePointY * pieceSize + 20 * pieceSize / 100, pieceSize - 40 * pieceSize / 100, pieceSize - 40 * pieceSize / 100);
     context.fillStyle = "blue";
 
     for (var _i = 0; _i < trail.length; _i++) {
@@ -175,6 +179,18 @@ window.onload = function () {
     if (applePointX == initialPointX && applePointY == initialPointY) {
       var diferent = false;
       tail++;
+      score++;
+
+      if (!localStorage.getItem('bestScore')) {
+        localStorage.setItem('bestScore', score);
+      } else {
+        if (Number(localStorage.getItem('bestScore')) < score) {
+          localStorage.setItem('bestScore', score);
+        }
+      }
+
+      displayScore.children[0].innerText = score;
+      displayBestScore.children[0].innerText = localStorage.getItem('bestScore');
 
       while (applePointX == initialPointX && applePointY == initialPointY && diferent !== true) {
         applePointX = Math.floor(Math.random() * pieceAmount);
@@ -200,6 +216,7 @@ window.onload = function () {
     veloY = 0;
     tail = 1;
     lastKey = 1;
+    score = 0;
   }
 };
 
